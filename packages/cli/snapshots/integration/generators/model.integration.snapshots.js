@@ -44,6 +44,11 @@ export class Test extends Entity {
   })
   isActive?: boolean;
 
+  @property({
+    type: 'boolean',
+  })
+  isActive?: boolean;
+
 
   constructor(data?: Partial<Test>) {
     super(data);
