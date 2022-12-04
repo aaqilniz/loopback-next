@@ -132,7 +132,6 @@ module.exports = class DiscoveryGenerator extends ArtifactGenerator {
         path.resolve(dsDir, `${utils.toFileName(s)}.datasource.js`),
       ),
     );
-
     if (this.options.dataSource) {
       if (
         this.dataSourceChoices
@@ -309,7 +308,27 @@ module.exports = class DiscoveryGenerator extends ArtifactGenerator {
     // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < this.discoveringModels.length; i++) {
       const modelInfo = this.discoveringModels[i];
+      // passing connector specific options from the cli through connectorDiscoveryOptions
+      let discoveryOptions = {};
+      if (this.options.connectorDiscoveryOptions) {
+        discoveryOptions = JSON.parse(this.options.connectorDiscoveryOptions);
+      }
       debug(`Discovering: ${modelInfo.name}...`);
+      // when options are passed to discover command as --config, the treatTINYINT1AsTinyInt comes as a string
+      if (typeof discoveryOptions.treatCHAR1AsString === 'string') {
+        discoveryOptions.treatCHAR1AsString =
+          discoveryOptions.treatCHAR1AsString === 'true';
+      }
+      // when options are passed to discover command as --config, the treatBIT1AsBit comes as a string
+      if (typeof discoveryOptions.treatBIT1AsBit === 'string') {
+        discoveryOptions.treatBIT1AsBit =
+          discoveryOptions.treatBIT1AsBit === 'true';
+      }
+      // when options are passed to discover command as --config, the treatTINYINT1AsTinyInt comes as a string
+      if (typeof discoveryOptions.treatTINYINT1AsTinyInt === 'string') {
+        discoveryOptions.treatTINYINT1AsTinyInt =
+          discoveryOptions.treatTINYINT1AsTinyInt === 'true';
+      }
       const modelDefinition = await modelMaker.discoverSingleModel(
         this.artifactInfo.dataSource,
         modelInfo.name,
@@ -317,6 +336,7 @@ module.exports = class DiscoveryGenerator extends ArtifactGenerator {
           schema: modelInfo.owner,
           disableCamelCase: this.artifactInfo.disableCamelCase,
           associations: this.options.relations,
+          ...discoveryOptions,
         },
       );
       if (this.options.optionalId) {
