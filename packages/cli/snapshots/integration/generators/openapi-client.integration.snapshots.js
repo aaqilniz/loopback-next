@@ -431,6 +431,8 @@ export * from './open-api.controller';
 
 exports[`openapi-generator with --client allows baseModel option 2`] = `
 import {api, operation, param, requestBody} from '@loopback/rest';
+import {inject} from '@loopback/core';
+import {OpenApiService} from '../services';
 import {Pet} from '../models/pet.model';
 import {NewPet} from '../models/new-pet.model';
 
@@ -493,7 +495,8 @@ import {NewPet} from '../models/new-pet.model';
   paths: {},
 })
 export class OpenApiController {
-  constructor() {}
+  constructor(@inject('services.OpenApiService')
+  protected openApiService: OpenApiService) {}
 
   /**
    * Returns all pets from the system that the user has access to
@@ -630,7 +633,7 @@ pulvinar elit eu, euismod sapien.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [additionalProperty: string]: any;
 } | undefined): Promise<Pet[]> {
-    throw new Error('Not implemented');
+    return this.openApiService.findPets(tags, limit, where);
   }
 
   /**
@@ -687,7 +690,7 @@ pulvinar elit eu, euismod sapien.
     },
   },
 }) _requestBody: NewPet): Promise<Pet> {
-    throw new Error('Not implemented');
+    return this.openApiService.addPet(_requestBody);
   }
 
   /**
@@ -745,7 +748,7 @@ pet
     format: 'int64',
   },
 }) id: number): Promise<Pet> {
-    throw new Error('Not implemented');
+    return this.openApiService.findPetById(id);
   }
 
   /**
@@ -794,7 +797,7 @@ pet
     format: 'int64',
   },
 }) id: number): Promise<unknown> {
-    throw new Error('Not implemented');
+    return this.openApiService.deletePet(id);
   }
 
 }
@@ -1834,6 +1837,8 @@ export * from './open-api.controller';
 
 exports[`openapi-generator with --client generates all files for both server and client 2`] = `
 import {api, operation, param, requestBody} from '@loopback/rest';
+import {inject} from '@loopback/core';
+import {OpenApiService} from '../services';
 import {Pet} from '../models/pet.model';
 import {NewPet} from '../models/new-pet.model';
 
@@ -1896,7 +1901,8 @@ import {NewPet} from '../models/new-pet.model';
   paths: {},
 })
 export class OpenApiController {
-  constructor() {}
+  constructor(@inject('services.OpenApiService')
+  protected openApiService: OpenApiService) {}
 
   /**
    * Returns all pets from the system that the user has access to
@@ -2033,7 +2039,7 @@ pulvinar elit eu, euismod sapien.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [additionalProperty: string]: any;
 } | undefined): Promise<Pet[]> {
-    throw new Error('Not implemented');
+    return this.openApiService.findPets(tags, limit, where);
   }
 
   /**
@@ -2090,7 +2096,7 @@ pulvinar elit eu, euismod sapien.
     },
   },
 }) _requestBody: NewPet): Promise<Pet> {
-    throw new Error('Not implemented');
+    return this.openApiService.addPet(_requestBody);
   }
 
   /**
@@ -2148,7 +2154,7 @@ pet
     format: 'int64',
   },
 }) id: number): Promise<Pet> {
-    throw new Error('Not implemented');
+    return this.openApiService.findPetById(id);
   }
 
   /**
@@ -2197,7 +2203,7 @@ pet
     format: 'int64',
   },
 }) id: number): Promise<unknown> {
-    throw new Error('Not implemented');
+    return this.openApiService.deletePet(id);
   }
 
 }
