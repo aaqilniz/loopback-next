@@ -6,24 +6,14 @@
 'use strict';
 
 const BaseGenerator = require('../../lib/base-generator');
-const {
-  debug,
-  debugJson,
-  validateUrlOrFile,
-  escapeComment,
-  camelCase,
-} = require('./utils');
+const {debug, debugJson, validateUrlOrFile, escapeComment} = require('./utils');
 const {loadAndBuildSpec} = require('./spec-loader');
 const utils = require('../../lib/utils');
 const {parse} = require('url');
 const path = require('path');
 const semver = require('semver');
 const slash = require('slash');
-const {
-  getControllerFileName,
-  getServiceFileName,
-  getMethodName,
-} = require('./spec-helper');
+const {getControllerFileName, getServiceFileName} = require('./spec-helper');
 
 const updateIndex = require('../../lib/update-index');
 const MODEL = 'models';
@@ -303,43 +293,11 @@ module.exports = class OpenApiGenerator extends BaseGenerator {
   }
 
   _generateControllers(withImplementation) {
-    let source = this.templatePath(
-      'src/controllers/controller-template.ts.ejs',
-    );
-    let selectedControllers = this.selectedControllers;
-    if (withImplementation) {
-      const paths = this.apiSpec.paths;
-      const methodParameters = {};
-      Object.keys(paths).forEach(pathKey => {
-        const eachPath = paths[pathKey];
-        Object.keys(eachPath).forEach(methodKey => {
-          const method = eachPath[methodKey];
-          const methodName = getMethodName(method);
-          methodParameters[methodName] = [];
-          if (method.parameters) {
-            method.parameters.forEach(param => {
-              methodParameters[methodName].push(param.name);
-            });
-          }
-          if (method.requestBody) {
-            methodParameters[methodName].push('_requestBody');
-          }
-        });
-      });
-      selectedControllers = this.selectedControllers.map(c => {
-        Object.keys(c.methodMapping).forEach((m, index) => {
-          c.serviceClassNameCamelCase = camelCase(c.serviceClassName);
-          c.methods[index].implementation = `return this.${
-            c.serviceClassNameCamelCase
-          }.${m}(${methodParameters[m].join(', ')});`;
-        });
-        return c;
-      });
-      source = this.templatePath(
-        'src/controllers/controller-template-with-implementations.ts.ejs',
-      );
-    }
-    for (const c of selectedControllers) {
+    const templateName = withImplementation
+      ? 'controller-template-with-implementations'
+      : 'controller-template';
+    const source = this.templatePath(`src/controllers/${templateName}.ts.ejs`);
+    for (const c of this.selectedControllers) {
       const controllerFile = c.fileName;
       if (debug.enabled) {
         debug(`Artifact output filename set to: ${controllerFile}`);
