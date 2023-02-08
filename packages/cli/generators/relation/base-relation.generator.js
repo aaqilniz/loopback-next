@@ -206,13 +206,12 @@ module.exports = class BaseRelationGenerator extends ArtifactGenerator {
         name: 'Getter',
         module: '@loopback/core',
       },
-      {
+    ];
+    if (dstModelClassName !== srcModelClass) {
+      imports.push({
         name: dstRepositoryClassName,
         module: `./${utils.toFileName(dstModelClassName)}.repository`,
-      },
-    ];
-    if (dstModelClassName === srcModelClass) {
-      imports.pop();
+      });
     }
     return imports;
   }
