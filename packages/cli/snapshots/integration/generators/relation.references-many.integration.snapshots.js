@@ -110,32 +110,3 @@ export class Customer extends Entity {
 }
 
 `;
-
-
-exports[`lb4 relation generates model relation with default values answers {"relationType":"referencesMany","sourceModel":"Customer","destinationModel":"Account"} has correct default imports 1`] = `
-import {Entity, model, property, referencesMany} from '@loopback/repository';
-import {Account} from './account.model';
-
-@model()
-export class Customer extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-    default: 0,
-  })
-  id?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @referencesMany(() => Account)
-  accountIds: number[];
-
-  constructor(data?: Partial<Customer>) {
-    super(data);
-  }
-}
-
-`;

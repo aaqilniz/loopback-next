@@ -400,32 +400,3 @@ export class Address extends Entity {
 }
 
 `;
-
-
-exports[`lb4 relation HasOne generates model relation with default values answers {"relationType":"hasOne","sourceModel":"Customer","destinationModel":"Address"} has correct default imports 1`] = `
-import {Entity, model, property, hasOne} from '@loopback/repository';
-import {Address} from './address.model';
-
-@model()
-export class Customer extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-    default: 0,
-  })
-  id?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasOne(() => Address)
-  address: Address;
-
-  constructor(data?: Partial<Customer>) {
-    super(data);
-  }
-}
-
-`;
