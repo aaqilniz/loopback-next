@@ -80,6 +80,14 @@ module.exports = class OpenApiGenerator extends BaseGenerator {
       type: String,
     });
 
+    this.option('controllerSelections', {
+      description: g.f(
+        'Controllers selected and/or service proxies to be generated',
+      ),
+      required: false,
+      type: Array,
+    });
+
     this.option('promote-anonymous-schemas', {
       description: g.f('Promote anonymous schemas as models'),
       required: false,
@@ -251,6 +259,9 @@ module.exports = class OpenApiGenerator extends BaseGenerator {
 
   async selectControllers() {
     if (this.shouldExit()) return;
+    if (this.options.controllerSelections) {
+      this.controllerSelections = JSON.parse(this.options.controllerSelections);
+    }
     const choices = this.controllerSpecs.map(c => {
       const names = [];
       if (this.options.server !== false) {
@@ -275,15 +286,20 @@ module.exports = class OpenApiGenerator extends BaseGenerator {
         type: 'checkbox',
         choices: choices,
         default: choices.map(c => c.value),
+        when: !this.controllerSelections,
         // Require at least one item to be selected
         // This prevents users from accidentally pressing ENTER instead of SPACE
         // to select an item from the list
         validate: result => !!result.length,
       },
     ];
-    const selections = (await this.prompt(prompts)).controllerSelections;
+    const controllerSelections = (await this.prompt(prompts))
+      .controllerSelections;
+    if (controllerSelections) {
+      this.controllerSelections = controllerSelections;
+    }
     this.selectedControllers = this.controllerSpecs.filter(c =>
-      selections.some(a => a === c.className),
+      this.controllerSelections.some(a => a === c.className),
     );
     this.selectedServices = this.selectedControllers;
     this.selectedControllers.forEach(c => {
