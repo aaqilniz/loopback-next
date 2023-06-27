@@ -562,7 +562,13 @@ export function modelToJsonSchema<T extends object>(
       delete targetOptions.title;
 
       const targetSchema = getJsonSchema(targetType, targetOptions);
-      const targetRef = {$ref: `#/definitions/${targetSchema.title}`};
+      const targetRef = {
+        $ref: `#/definitions/${targetSchema.title}`,
+        'x-foreign-key-column': null,
+      };
+      if (`${relMeta.name}Id` !== relMeta.keyFrom) {
+        targetRef['x-foreign-key-column'] = relMeta.keyFrom;
+      }
       const propDef = getNavigationalPropertyForRelation(relMeta, targetRef);
 
       result.properties[relMeta.name] =
