@@ -53,8 +53,9 @@ export type TransactionalEntityRepository<
  *
  * @typeParam T Generic type for the Entity
  */
-export interface TransactionalRepository<T extends Entity>
-  extends Repository<T> {
+export interface TransactionalRepository<
+  T extends Entity,
+> extends Repository<T> {
   /**
    * Begin a new Transaction
    * @param options - Options for the operations
@@ -78,6 +79,15 @@ export interface CrudRepository<
    * @returns A promise of record created
    */
   create(dataObject: DataObject<T>, options?: Options): Promise<T>;
+
+  /**
+   * Update an existing entity or Create if it does not exist
+   * @param modelClass - The model class
+   * @param entity - The entity instance or data
+   * @param options - Options for the operation
+   * @returns A promise of the entity created
+   */
+  upsert?(dataObject: DataObject<T>, options?: Options): Promise<T>;
 
   /**
    * Create all records
@@ -128,8 +138,10 @@ export interface CrudRepository<
 /**
  * Base interface for a repository of entities
  */
-export interface EntityRepository<T extends Entity, ID>
-  extends ExecutableRepository<T> {}
+export interface EntityRepository<
+  T extends Entity,
+  ID,
+> extends ExecutableRepository<T> {}
 
 /**
  * CRUD operations for a repository of entities
@@ -138,8 +150,8 @@ export interface EntityCrudRepository<
   T extends Entity,
   ID,
   Relations extends object = {},
-> extends EntityRepository<T, ID>,
-    CrudRepository<T, Relations> {
+>
+  extends EntityRepository<T, ID>, CrudRepository<T, Relations> {
   // entityClass should have type "typeof T", but that's not supported by TSC
   entityClass: typeof Entity & {prototype: T};
   inclusionResolvers: Map<string, InclusionResolver<T, Entity>>;
@@ -253,9 +265,10 @@ export interface EntityCrudRepository<
  * }
  * ```
  */
-export class CrudRepositoryImpl<T extends Entity, ID>
-  implements EntityCrudRepository<T, ID>
-{
+export class CrudRepositoryImpl<
+  T extends Entity,
+  ID,
+> implements EntityCrudRepository<T, ID> {
   private connector: CrudConnector;
   public readonly inclusionResolvers: Map<
     string,
@@ -282,6 +295,15 @@ export class CrudRepositoryImpl<T extends Entity, ID>
     return this.toModel(
       this.connector.create(this.entityClass, entity, options),
     );
+  }
+
+  upsert(entity: DataObject<T>, options?: Options): Promise<T> {
+    if (this.connector.upsert) {
+      return this.toModel(
+        this.connector.upsert(this.entityClass, entity, options),
+      );
+    }
+    return this.save(entity, options);
   }
 
   createAll(entities: DataObject<T>[], options?: Options): Promise<T[]> {
